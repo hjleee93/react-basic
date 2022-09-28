@@ -4,12 +4,14 @@ import Hello from './Hello';
 import Wrapper from './Wrapper';
 import Counter from './Counter';
 import InputSample from './inputSample';
+import UserList from './UserList'
 
 function App() {
   return (
+    <UserList></UserList>
 
     // <Counter></Counter>
-    <InputSample />
+    // <InputSample />
     // <Wrapper>
     //   <Hello color="red" isSpecial={true} />
     //   {/* isSpecial의 값을 전달하지 않는 경우 true로 취급됨 */}
