@@ -1,35 +1,29 @@
 import React from 'react';
 
 //한 파일의 여러개의 컴포넌트가 있어도 무관
-function User({ user }) {
+function User({ user, onRemove, onToggle }) {
+  const {id, username, email, active } = user;
   return (
     <div>
       <div>
-        <b>{user.username}</b>
-        <span>({user.email})</span>
+        <b
+        onClick={()=>onToggle(id)}
+        style={({
+          color :active ? 'green' : 'black',
+          cursor:'pointer'
+        })}>{username}</b>
+        <span>({email})</span>
+        {/* 매개변수를 넘기기 위해서 함수를 새로 정의
+          함수를 바로 호출한다면 컴포넌트가 렌더링되자마자 
+          실행되기때문에 주의! */}
+        <button onClick={() => onRemove(id)}>Remove</button>
       </div>
     </div>
   )
 }
 
-function UserList() {
-  const users = [
-    {
-      id: 1,
-      username: 'hj',
-      email: 'hj1@hj.com'
-    },
-    {
-      id: 2,
-      username: 'hj2',
-      email: 'hj2@hj.com'
-    },
-    {
-      id: 3,
-      username: 'hj3',
-      email: 'hj3@hj.com'
-    }
-  ]
+function UserList({users, onRemove, onToggle}) {
+  
   return (
     //하나하나 접근하는 방식
     // <div>
@@ -56,7 +50,11 @@ function UserList() {
     성능에 좋지 못하다 */}
       {
         users.map(
-          user => (<User user={user} key={user.id} />)
+          user => (<User 
+            user={user} 
+            key={user.id}
+            onRemove={onRemove}
+            onToggle={onToggle} />)
         )
       }
     </div>
