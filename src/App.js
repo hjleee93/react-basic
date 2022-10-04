@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useRef, useState, useEffect} from 'react'
 import logo from './logo.svg';
 import './App.css';
 import Hello from './Hello';
@@ -9,6 +9,7 @@ import UserList from './UserList'
 import CreateUser from './CreateUser';
 
 function App() {
+  
   const [inputs, setInputs] = useState({
     username:'',
     email:''
@@ -77,6 +78,7 @@ function App() {
 
 
   }
+
   const onRemove = (id) =>{
     setUsers( users.filter(user =>
       user.id !== id))
@@ -90,8 +92,20 @@ function App() {
       ? {...user, active: !user.active}: user
     ))  
   }
-  return (
 
+  const onEdit = (id, user) =>{
+    const {username} = user
+    // const newObj = {
+    //   id: id,
+    //   username:
+    // }
+    setUsers (users.map(
+      user => user.id === id 
+    ))
+
+  }
+  return (
+  
     <>
       <CreateUser 
         username={username} 
@@ -102,7 +116,7 @@ function App() {
       <UserList 
       users={users}
       onRemove={onRemove}
-      onToggle={onToggle}></UserList>
+      onToggle={onToggle}/>
     </>
     // <Counter></Counter>
     // <InputSample />
