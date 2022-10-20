@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 
 //한 파일의 여러개의 컴포넌트가 있어도 무관
-function User({ user, onRemove, onToggle }) {
+const User = React.memo(function User ({ user, onRemove, onToggle }) {
   const {id, username, email, active } = user;
   
   //특정값이 업데이트되고 난 후에 실행되는 함수, 처음나타날때도 실행이된다
@@ -45,9 +45,10 @@ function User({ user, onRemove, onToggle }) {
         <button onClick={() => onRemove(id)}>Remove</button>
       </div>
   )
-}
+})
 
 function UserList({users, onRemove, onToggle}) {
+  console.log('user component')
   
   return (
     //하나하나 접근하는 방식
@@ -90,6 +91,7 @@ function UserList({users, onRemove, onToggle}) {
   )
 }
 
-export default UserList
+export default React.memo(
+  UserList, (prevProps, nextProps) => nextProps.users === prevProps.users)
 
 
