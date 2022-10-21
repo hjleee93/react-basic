@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react'
+import React, {useRef, useState, useEffect, useMemo, useCallback, useReducer} from 'react'
 import logo from './logo.svg';
 import './App.css';
 import Hello from './Hello';
@@ -8,35 +8,19 @@ import InputSample from './inputSample';
 import UserList from './UserList'
 import CreateUser from './CreateUser';
 
+
 function countActiveUsers(users){
   console.log('counting active users...')
 
   return users.filter(user => user.active).length
 }
 
-function App() {
-  
-  //onChange 이벤트를 발생시켜 상태를 바꿀 때도 컴포넌트가 리렌더링 됨
-  const [inputs, setInputs] = useState({
+const initialState = {
+  inputs:{
     username:'',
     email:''
-  })
-
-  const { username, email } = inputs;
-
-  const onChange = useCallback(e =>{
-    const {name, value} = e.target
-    setInputs({
-      ...inputs,
-    [name]:value
-    })
-  }, [inputs])
-
-  // 배열을 추가하거나 바꾸는 경우 push, splice, sort..등과 같은 함수를 쓴느데
-  // 리액트에서는 사용하지 않는다
-  // 객체와 동일하게 불변성을 지키면서 새로운 항목을 만들어야한다.
-  
-  const [users, setUsers] = useState([
+  },
+  users:[
     {
       id: 1,
       username: 'hj',
@@ -56,79 +40,109 @@ function App() {
       active:false,
 
     }
-  ])
-  
-  const nextId = useRef(4)
+  ]
+}
 
-  const onCreate =
-   useCallback(
-    () =>{
-    //새로운 유저 객체 생성
-    const user = {
-      id: nextId.current,
-      // ...inpus 와 동일
-      username,
-      email
-    }
-    
-    // 배열에 항목을 추가 하는 방식 : 
-    // 1. spread 연산자,
-    // 2. concat
-    // push같은 함수를 사용하면 업데이트가 되지않음!
-    // setUsers([...users, user]);
-    setUsers(users=>users.concat(user)) //함수형 업데이트
+function reducer(state, action){
+  switch(action.type){
 
-    setInputs({
-      username:'',
-      email:'',
-    })
+    case 'CHANGE_INPUT':
+      return {
+        ...state,
+        inputs:{
+          ...state.inputs,
+          [action.name]: action.value
+        }
+      };
+      case 'CREATE_USER':
+        return{
+          inputs:initialState.inputs,
+          users:state.users.concat(action.user)
+        }
+      case 'TOGGLE_USER':
+        return{
+          ...state,
+          users:state.users.map(user=>
+            user.id === action.id ? {...user, active: !user.active} : user)
+        };
 
-    nextId.current += 1
-
-
-  },[username, email])
-
-  const onRemove = useCallback((id) =>{
-    setUsers(users=> users.filter(user =>
-      user.id !== id))
-  }, [])
-
-  const onToggle = useCallback(
-    (id) =>{
-    //불변성을 지키기위해 map 함수 사용
-    //객체 수정도 새로운 객체를 만들어서 사용
-    setUsers(users=>users.map(
-      user => user.id === id
-      ? {...user, active: !user.active}: user
-    ))  
-  }, [])
-
-  const onEdit = (id, user) =>{
-    const {username} = user
-    // const newObj = {
-    //   id: id,
-    //   username:
-    // }
-    setUsers (users.map(
-      user => user.id === id 
-    ))
-
+        case 'REMOVE_USER':
+          return{
+            ...state,
+            users:state.users.filter(user=> user.id !== action.id )
+          }
+      default:
+        throw new Error('unhandled action ')
   }
 
-  const count = useMemo(()=>countActiveUsers(users),[users]);
+}
+
+function App() {
+  const nextId = useRef(4)
+
+  const [state, dispatch] = useReducer(reducer, initialState)//state 안에 initialState로 inputs, users 가 있으므로 비구조 할당을 통해서 컴포넌트에 전달 
+
+  const { users } = state;
+  const {username, email} = state.inputs
+
+  const onChange = useCallback(e => {
+    const { name, value } = e.target;
+
+    dispatch({
+      type:'CHANGE_INPUT',
+      name,
+      value
+    })
+  },[]) //useCallback 을 통해 함수 재사용
+
+  const onCreate = useCallback(()=>{
+    dispatch({
+      type:'CREATE_USER',
+      user:{
+        id:nextId.current,
+        username,
+        email
+      }
+    })
+    
+    nextId.current+=1
+  }, [username, email])
+
+  const onToggle = useCallback(id=>{
+    dispatch({
+        type:'TOGGLE_USER',
+        id
+    })
+  }, []) //함수를 계속 재사용하게 되므로 deps 는 []
+
+
+  const onRemove = useCallback(id=>{
+    dispatch({
+        type:'REMOVE_USER',
+        id
+    })
+  }, [])
+
+  const count = useMemo(()=>countActiveUsers(users), [users])
+
+
+  
   return (
   
     <>
       <CreateUser 
-        username={username} 
-        email={email}
-        onChange={onChange}
-        onCreate={onCreate}
+      username={username}
+      email={email}
+      onChange={onChange}
+      onCreate={onCreate}
+      
+       
         />
       <UserList 
+      onToggle={onToggle}
+      onRemove ={onRemove}
       users={users}
-      onRemove={onRemove}
-      onToggle={onToggle}/>
+     />
       <div> active users: {count}</div>
     </>
     // <Counter></Counter>
