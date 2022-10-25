@@ -7,19 +7,18 @@ import Counter from './Counter';
 import InputSample from './inputSample';
 import UserList from './UserList'
 import CreateUser from './CreateUser';
-
+import useInputs from './useInputs';
 
 function countActiveUsers(users){
   console.log('counting active users...')
 
   return users.filter(user => user.active).length
 }
-
 const initialState = {
-  inputs:{
-    username:'',
-    email:''
-  },
+  // inputs:{
+  //   username:'',
+  //   email:''
+  // },
   users:[
     {
       id: 1,
@@ -46,14 +45,14 @@ const initialState = {
 function reducer(state, action){
   switch(action.type){
 
-    case 'CHANGE_INPUT':
-      return {
-        ...state,
-        inputs:{
-          ...state.inputs,
-          [action.name]: action.value
-        }
-      };
+    // case 'CHANGE_INPUT':
+    //   return {
+    //     ...state,
+    //     inputs:{
+    //       ...state.inputs,
+    //       [action.name]: action.value
+    //     }
+    //   };
       case 'CREATE_USER':
         return{
           inputs:initialState.inputs,
@@ -82,18 +81,24 @@ function App() {
 
   const [state, dispatch] = useReducer(reducer, initialState)//state 안에 initialState로 inputs, users 가 있으므로 비구조 할당을 통해서 컴포넌트에 전달 
 
+  const [form, onChange, reset] = useInputs({
+    username:'',
+    email:'',
+  })
+
+  const {username, email} = form
   const { users } = state;
-  const {username, email} = state.inputs
+  // const {username, email} = state.inputs
 
-  const onChange = useCallback(e => {
-    const { name, value } = e.target;
+  // const onChange = useCallback(e => {
+  //   const { name, value } = e.target;
 
-    dispatch({
-      type:'CHANGE_INPUT',
-      name,
-      value
-    })
-  },[]) //useCallback 을 통해 함수 재사용
+  //   dispatch({
+  //     type:'CHANGE_INPUT',
+  //     name,
+  //     value
+  //   })
+  // },[]) //useCallback 을 통해 함수 재사용
 
   const onCreate = useCallback(()=>{
     dispatch({
@@ -106,7 +111,8 @@ function App() {
     })
     
     nextId.current+=1
-  }, [username, email])
+    reset()
+  }, [username, email, reset ]) //reset은 넣어주지 않아도 되지만 useCallback 에서 사용하고 있으므로 esLint 문법상 넣어야 한다
 
   const onToggle = useCallback(id=>{
     dispatch({
