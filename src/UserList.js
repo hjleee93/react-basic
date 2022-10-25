@@ -1,8 +1,11 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
+//여러 컴포넌트에 걸쳐서 데이터를 넘겨줘야하는 경우 useContext를 사용해서 넘겨주면 편리함
+import { UserDispatch } from './App';
 
 //한 파일의 여러개의 컴포넌트가 있어도 무관
-const User = React.memo(function User ({ user, onRemove, onToggle }) {
+const User = React.memo(function User ({ user}) {
   const {id, username, email, active } = user;
+  const dispatch = useContext(UserDispatch)
   
   //특정값이 업데이트되고 난 후에 실행되는 함수, 처음나타날때도 실행이된다
   //props로 받는 값이나 useState 값으로 관리하고 있는 함수를
@@ -31,7 +34,10 @@ const User = React.memo(function User ({ user, onRemove, onToggle }) {
   return (
       <div>
         <b
-        onClick={()=>onToggle(id)}
+        onClick={()=>dispatch({
+          type:'TOGGLE_USER',
+          id
+        })}
         style={({
           color :active ? 'green' : 'black',
           cursor:'pointer'
@@ -42,7 +48,10 @@ const User = React.memo(function User ({ user, onRemove, onToggle }) {
           실행되기때문에 주의! */}
         {/* <input name="editName" onChange={onChange} value={editName} /> */}
 
-        <button onClick={() => onRemove(id)}>Remove</button>
+        <button onClick={() => dispatch({
+          type:'REMOVE_USER',
+          id
+        })}>Remove</button>
       </div>
   )
 })
@@ -81,8 +90,8 @@ function UserList({users, onRemove, onToggle}) {
           <User 
             user={user} 
             key={user.id}
-            onRemove={onRemove}
-            onToggle={onToggle} 
+            // onRemove={onRemove}
+            // onToggle={onToggle} 
             />)
         )
       }
