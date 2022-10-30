@@ -26,9 +26,6 @@ function useInputs(initialForm){//form에서 사용할 초기값
 
   const [state , dispatch] = useReducer(reducer, initialForm)
 
-
-  // const [ form, setForm] = useState(initialForm);
-
   const onChange = useCallback(e =>{
 
     const {name, value} = e.target;
@@ -38,20 +35,15 @@ function useInputs(initialForm){//form에서 사용할 초기값
       name, 
       value
     })
-    // setForm(form => ({...form, [name] : value}));
-
   }, [])
 
   const reset  = useCallback(()=>
 
   dispatch({
     type:'RESET',
-    // initialForm
-    //오답 : initialForm은 필요없음 그 대신 deps에 [] 을 널어줘야함
+   
   }), []
   )
-  // setForm(initialForm), [initialForm])
-
 
   return [state, onChange, reset]
 

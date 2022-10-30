@@ -15,10 +15,6 @@ function countActiveUsers(users){
   return users.filter(user => user.active).length
 }
 const initialState = {
-  // inputs:{
-  //   username:'',
-  //   email:''
-  // },
   users:[
     {
       id: 1,
@@ -44,15 +40,6 @@ const initialState = {
 
 function reducer(state, action){
   switch(action.type){
-
-    // case 'CHANGE_INPUT':
-    //   return {
-    //     ...state,
-    //     inputs:{
-    //       ...state.inputs,
-    //       [action.name]: action.value
-    //     }
-    //   };
       case 'CREATE_USER':
         return{
           inputs:initialState.inputs,
@@ -79,77 +66,19 @@ function reducer(state, action){
 export const UserDispatch = createContext(null)//초기값은 필요없으므로 null
 
 function App() {
-  const nextId = useRef(4)
 
   const [state, dispatch] = useReducer(reducer, initialState)//state 안에 initialState로 inputs, users 가 있으므로 비구조 할당을 통해서 컴포넌트에 전달 
-
-  const [form, onChange, reset] = useInputs({
-    username:'',
-    email:'',
-  })
-
-  const {username, email} = form
   const { users } = state;
-  // const {username, email} = state.inputs
-
-  // const onChange = useCallback(e => {
-  //   const { name, value } = e.target;
-
-  //   dispatch({
-  //     type:'CHANGE_INPUT',
-  //     name,
-  //     value
-  //   })
-  // },[]) //useCallback 을 통해 함수 재사용
-
-  const onCreate = useCallback(()=>{
-    dispatch({
-      type:'CREATE_USER',
-      user:{
-        id:nextId.current,
-        username,
-        email
-      }
-    })
-    
-    nextId.current+=1
-    reset()
-  }, [username, email, reset ]) //reset은 넣어주지 않아도 되지만 useCallback 에서 사용하고 있으므로 esLint 문법상 넣어야 한다
-
-  // const onToggle = useCallback(id=>{
-  //   dispatch({
-  //       type:'TOGGLE_USER',
-  //       id
-  //   })
-  // }, []) //함수를 계속 재사용하게 되므로 deps 는 []
-
-
-  // const onRemove = useCallback(id=>{
-  //   dispatch({
-  //       type:'REMOVE_USER',
-  //       id
-  //   })
-  // }, [])
-
+ 
   const count = useMemo(()=>countActiveUsers(users), [users])
 
-
-  
   return (
   
     <UserDispatch.Provider value={dispatch}> 
     {/*  useReduce로 받아온 값을 value 값으로 넣음*/}
-      <CreateUser 
-      username={username}
-      email={email}
-      onChange={onChange}
-      onCreate={onCreate}
-      
-       
-        />
+      <CreateUser />
       <UserList 
-      // onToggle={onToggle}
-      // onRemove ={onRemove}
+     
       users={users}
      />
      {/* user 컴포넌트에서 사용할 onToggle, onRemove 컴포넌트를 전달하기 위해서 
@@ -157,13 +86,7 @@ function App() {
      UseContext를 사용하면 바로 전달이 가능하다 */}
       <div> active users: {count}</div>
     </UserDispatch.Provider>
-    // <Counter></Counter>
-    // <InputSample />
-    // <Wrapper>
-    //   <Hello color="red" isSpecial={true} />
-    //   {/* isSpecial의 값을 전달하지 않는 경우 true로 취급됨 */}
-    //   <Hello name="hj" color="blue" />
-    // </Wrapper>
+   
   );
 }
 export default App;
