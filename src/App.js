@@ -1,4 +1,5 @@
-import React, {useRef, useState, useEffect, useMemo, useCallback, useReducer, createContext} from 'react'
+import React, {useRef, useState, useEffect, useMemo, useCallback, useReducer, createContext, useDeferredValue} from 'react'
+import produce from 'immer'; //필수 라이브러리가 아님, 어쩔수 없을 ㄸㅐ 사용하는 것이 좋음
 import logo from './logo.svg';
 import './App.css';
 import Hello from './Hello';
@@ -41,22 +42,35 @@ const initialState = {
 function reducer(state, action){
   switch(action.type){
       case 'CREATE_USER':
-        return{
-          inputs:initialState.inputs,
-          users:state.users.concat(action.user)
-        }
+        return produce(state, draft =>{
+          draft.users.push(action.user);
+         })
+         //immer로 구현햇을때 큰 장점이 없음
+        // return{
+        //   users:state.users.concat(action.user)
+        // }
       case 'TOGGLE_USER':
-        return{
-          ...state,
-          users:state.users.map(user=>
-            user.id === action.id ? {...user, active: !user.active} : user)
-        };
+        return produce(state, draft=>{
+          const user = draft.users.find(user => user.id === action.id);
+          user.active = !user.active;
+        })
+        //이 경우에는 immer가 더 코드가 이해하기가 명확함. => update 로직이 까다로운 경우에 사용하는게 좋음 간단한 경우에 크게 의미가 없음
+        // return{
+        //   ...state,
+        //   users:state.users.map(user=>
+        //     user.id === action.id ? {...user, active: !user.active} : user)
+        // };
 
         case 'REMOVE_USER':
-          return{
-            ...state,
-            users:state.users.filter(user=> user.id !== action.id )
-          }
+        return produce(state, draft=>{
+         const index =  draft.users.findIndex(user => user.id === action.id);
+         draft.users.splice(index,1)
+        })
+        
+          // return{
+          //   ...state,
+          //   users:state.users.filter(user=> user.id !== action.id )
+          // }
       default:
         throw new Error('unhandled action ')
   }
