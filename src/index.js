@@ -2,19 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import Counter from './Counter';
-import reportWebVitals from './reportWebVitals';
-import Hello from './Hello';
-// import ContextSample from './ContextSample';
+import { BrowserRouter } from 'react-router-dom';
+import reportWebVitals from "./reportWebVitals";
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <Hello name={'hj'} isSpecial={true}/>
-    <Counter/>
+  <BrowserRouter>
     <App />
-    {/* <ContextSample/> */}
-  </React.StrictMode>
+  </BrowserRouter>
+
 );
 
 reportWebVitals();
